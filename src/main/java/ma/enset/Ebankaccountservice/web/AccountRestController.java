@@ -1,20 +1,26 @@
 package ma.enset.Ebankaccountservice.web;
 
+import ma.enset.Ebankaccountservice.dto.BankAccountRequestDTO;
+import ma.enset.Ebankaccountservice.dto.BankAccountResponseDTO;
 import ma.enset.Ebankaccountservice.entities.BankAccount;
+import ma.enset.Ebankaccountservice.mappers.AccountMapper;
 import ma.enset.Ebankaccountservice.repositories.BankAccountRepository;
+import ma.enset.Ebankaccountservice.service.AccountService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
 public class AccountRestController {
-
+    private AccountService accountService;
+    private AccountMapper accountMapper;
     private BankAccountRepository bankAccountRepository;
 
-    public AccountRestController(BankAccountRepository bankAccountRepository) {
+    public AccountRestController(AccountService accountService, AccountMapper accountMapper, BankAccountRepository bankAccountRepository) {
+        this.accountService = accountService;
+        this.accountMapper = accountMapper;
         this.bankAccountRepository = bankAccountRepository;
     }
 
@@ -28,12 +34,9 @@ public class AccountRestController {
         return bankAccountRepository.findById(id).orElseThrow(()->new RuntimeException(String.format("Account  %s not found ",id)));
     }
     @PostMapping("/bankAccounts")
-    public  BankAccount save(@RequestBody BankAccount bankAccount){
-        if(bankAccount.getId()== null)
-        {
-            bankAccount.setId(UUID.randomUUID().toString());
-        }
-        return bankAccountRepository.save(bankAccount);
+    public BankAccountResponseDTO save(@RequestBody BankAccountRequestDTO requestDTO){
+
+        return accountService.addAccount(requestDTO);
     }
 
     @PutMapping("/bankAccounts/{id}")
